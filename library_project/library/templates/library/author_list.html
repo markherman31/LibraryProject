@@ -4,9 +4,6 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h2>Authors</h2>
-        {% if user.is_staff %}
-        <a href="{% url 'library:author-create' %}" class="btn btn-primary">Add New Author</a>
-        {% endif %}
     </div>
     <div class="card-body">
         {% if authors %}
@@ -32,9 +29,6 @@
                                 </div>
                                 <div class="mt-auto">
                                     <a href="{% url 'library:author-detail' author.pk %}" class="btn btn-primary btn-sm">View Details</a>
-                                    {% if user.is_staff %}
-                                        <a href="{% url 'library:author-update' author.pk %}" class="btn btn-secondary btn-sm">Edit</a>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>
