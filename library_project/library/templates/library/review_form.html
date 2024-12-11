@@ -1,0 +1,36 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{% if form.instance.pk %}Edit{% else %}Write{% endif %} Review for "{{ book.title }}"</h2>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_rating" class="form-label">Rating</label>
+                <select name="rating" id="id_rating" class="form-select" required>
+                    <option value="">Select a rating...</option>
+                    <option value="5" {% if form.rating.value == 5 %}selected{% endif %}>★★★★★ (5 stars)</option>
+                    <option value="4" {% if form.rating.value == 4 %}selected{% endif %}>★★★★☆ (4 stars)</option>
+                    <option value="3" {% if form.rating.value == 3 %}selected{% endif %}>★★★☆☆ (3 stars)</option>
+                    <option value="2" {% if form.rating.value == 2 %}selected{% endif %}>★★☆☆☆ (2 stars)</option>
+                    <option value="1" {% if form.rating.value == 1 %}selected{% endif %}>★☆☆☆☆ (1 star)</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_comment" class="form-label">Your Review</label>
+                <textarea name="comment" id="id_comment" class="form-control" rows="5" required>{{ form.comment.value|default:'' }}</textarea>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+                <a href="{% url 'library:book-detail' book.pk %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

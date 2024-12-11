@@ -1,0 +1,97 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">{{ book.title }}</h1>
+        
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <table class="table">
+                    <tr>
+                        <th>ISBN:</th>
+                        <td>{{ book.isbn }}</td>
+                    </tr>
+                    <tr>
+                        <th>Authors:</th>
+                        <td>
+                            {% for author in book.authors.all %}
+                                {{ author.first_name }} {{ author.last_name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Published Date:</th>
+                        <td>{{ book.published_date }}</td>
+                    </tr>
+                    <tr>
+                        <th>Publisher:</th>
+                        <td>{{ book.publisher }}</td>
+                    </tr>
+                    <tr>
+                        <th>Language:</th>
+                        <td>{{ book.language }}</td>
+                    </tr>
+                    <tr>
+                        <th>Page Count:</th>
+                        <td>{{ book.page_count }}</td>
+                    </tr>
+                    <tr>
+                        <th>Available Copies:</th>
+                        <td>{{ book.available_copies }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td><span class="badge bg-{% if book.status == 'available' %}success{% else %}warning{% endif %}">
+                            {{ book.status|title }}
+                        </span></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="col-md-4">
+                {% if user.is_authenticated and book.status == 'available' and book.available_copies > 0 %}
+                    <form method="post" action="{% url 'library:borrow-book' book.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Borrow Book</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="mt-4">
+            <h3>Reviews</h3>
+            {% if user.is_authenticated %}
+                {% if not user_review %}
+                    <a href="{% url 'library:create-review' book.pk %}" class="btn btn-primary mb-3">Write a Review</a>
+                {% endif %}
+            {% endif %}
+
+            {% for review in reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {{ review.member.user.get_full_name|default:review.member.user.username }}
+                        </h5>
+                        <div class="text-warning mb-2">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    ★
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                            ({{ review.rating }} out of 5)
+                        </div>
+                        <p class="card-text">{{ review.comment }}</p>
+                        <small class="text-muted">Posted on {{ review.date_posted }}</small>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No reviews yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

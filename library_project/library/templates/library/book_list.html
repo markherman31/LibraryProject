@@ -1,0 +1,32 @@
+<!-- library/templates/library/book_list.html -->
+{% extends 'library/base.html' %}
+
+{% block content %}
+    <h1>Library Books</h1>
+    
+    <form class="mb-4" method="get">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search books..." value="{{ request.GET.q }}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <div class="row">
+        {% for book in books %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <p class="card-text">ISBN: {{ book.isbn }}</p>
+                        <p class="card-text">Available copies: {{ book.available_copies }}</p>
+                        <a href="{% url 'library:book-detail' book.pk %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <p>No books found.</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

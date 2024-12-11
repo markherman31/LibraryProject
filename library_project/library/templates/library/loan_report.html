@@ -1,0 +1,219 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Book Loans Report</h2>
+    </div>
+    <div class="card-body">
+        <form method="get" class="mb-4">
+            <div class="row mb-3">
+                <div class="col-md-4 mb-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" 
+                           value="{{ request.GET.start_date }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date"
+                           value="{{ request.GET.end_date }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <select class="form-select" id="author" name="author">
+                        <option value="">All Authors</option>
+                        {% for author in authors %}
+                            <option value="{{ author.id }}" 
+                                    {% if request.GET.author|add:"0" == author.id %}selected{% endif %}>
+                                {{ author.first_name }} {{ author.last_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Select Information to Display</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="columns" value="book_title" 
+                                       id="col_book_title" {% if 'book_title' in selected_columns %}checked{% endif %}>
+                                <label class="form-check-label" for="col_book_title">
+                                    Book Title
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="columns" value="author" 
+                                       id="col_author" {% if 'author' in selected_columns %}checked{% endif %}>
+                                <label class="form-check-label" for="col_author">
+                                    Author(s)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="columns" value="member" 
+                                       id="col_member" {% if 'member' in selected_columns %}checked{% endif %}>
+                                <label class="form-check-label" for="col_member">
+                                    Member Name
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="columns" value="checkout_date" 
+                                       id="col_checkout" {% if 'checkout_date' in selected_columns %}checked{% endif %}>
+                                <label class="form-check-label" for="col_checkout">
+                                    Checkout Date
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="columns" value="due_date" 
+                                       id="col_due" {% if 'due_date' in selected_columns %}checked{% endif %}>
+                                <label class="form-check-label" for="col_due">
+                                    Due Date
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="columns" value="return_date" 
+                                       id="col_return" {% if 'return_date' in selected_columns %}checked{% endif %}>
+                                <label class="form-check-label" for="col_return">
+                                    Return Date
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="columns" value="status" 
+                                       id="col_status" {% if 'status' in selected_columns %}checked{% endif %}>
+                                <label class="form-check-label" for="col_status">
+                                    Status
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </div>
+        </form>
+
+        {% if loans %}
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Total Loans</h5>
+                            <p class="h3 mb-0">{{ stats.total_loans }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Active Loans</h5>
+                            <p class="h3 mb-0">{{ stats.active_loans }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Average Duration</h5>
+                            <p class="h3 mb-0">{{ stats.avg_duration }} days</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Return Rate</h5>
+                            <p class="h3 mb-0">{{ stats.return_rate|floatformat:1 }}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            {% if 'book_title' in selected_columns %}
+                                <th>Book Title</th>
+                            {% endif %}
+                            {% if 'author' in selected_columns %}
+                                <th>Author(s)</th>
+                            {% endif %}
+                            {% if 'member' in selected_columns %}
+                                <th>Member</th>
+                            {% endif %}
+                            {% if 'checkout_date' in selected_columns %}
+                                <th>Checkout Date</th>
+                            {% endif %}
+                            {% if 'due_date' in selected_columns %}
+                                <th>Due Date</th>
+                            {% endif %}
+                            {% if 'return_date' in selected_columns %}
+                                <th>Return Date</th>
+                            {% endif %}
+                            {% if 'status' in selected_columns %}
+                                <th>Status</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in loans %}
+                        <tr>
+                            {% if 'book_title' in selected_columns %}
+                                <td>{{ loan.book.title }}</td>
+                            {% endif %}
+                            {% if 'author' in selected_columns %}
+                                <td>
+                                    {% for author in loan.book.authors.all %}
+                                        {{ author.first_name }} {{ author.last_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                            {% if 'member' in selected_columns %}
+                                <td>{{ loan.member.user.get_full_name }}</td>
+                            {% endif %}
+                            {% if 'checkout_date' in selected_columns %}
+                                <td>{{ loan.checkout_date|date:"M d, Y" }}</td>
+                            {% endif %}
+                            {% if 'due_date' in selected_columns %}
+                                <td>{{ loan.due_date|date:"M d, Y" }}</td>
+                            {% endif %}
+                            {% if 'return_date' in selected_columns %}
+                                <td>{{ loan.return_date|date:"M d, Y"|default:"-" }}</td>
+                            {% endif %}
+                            {% if 'status' in selected_columns %}
+                                <td>
+                                    <span class="badge bg-{% if loan.status == 'returned' %}success{% elif loan.status == 'overdue' %}danger{% else %}warning{% endif %}">
+                                        {{ loan.status|title }}
+                                    </span>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif request.GET %}
+            <div class="alert alert-info">No loans found matching the selected criteria.</div>
+        {% else %}
+            <div class="alert alert-info">Select date range and/or author to generate report.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

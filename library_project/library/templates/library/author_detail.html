@@ -1,0 +1,38 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">{{ author.first_name }} {{ author.last_name }}</h1>
+        
+        {% if author.biography %}
+            <div class="mb-4">
+                <h4>Biography</h4>
+                <p>{{ author.biography }}</p>
+            </div>
+        {% endif %}
+        
+        <div class="mt-4">
+            <h4>Books by this Author</h4>
+            <div class="row">
+                {% for book in author.books.all %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ book.title }}</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">ISBN: {{ book.isbn }}</small>
+                                </p>
+                                <p class="card-text">Available copies: {{ book.available_copies }}</p>
+                                <a href="{% url 'library:book-detail' book.pk %}" class="btn btn-primary">View Book</a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No books found for this author.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
